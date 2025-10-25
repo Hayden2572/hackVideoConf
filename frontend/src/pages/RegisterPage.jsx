@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import RegisterForm from '../components/Auth/RegisterForm';
-import AuthLayout from '../components/Layout/AuthLayout';
+import RegisterForm from '@components/Auth/RegisterForm';
+import AuthLayout from '@components/Layout/AuthLayout';
 
 export default function RegisterPage() {
     const navigate = useNavigate();

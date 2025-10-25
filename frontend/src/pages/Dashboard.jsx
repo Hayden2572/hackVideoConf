@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService';
-import { DashboardLayout } from '../components/Layout/DashboardLayout'; // Импортируйте layout
-import QuickAccessPanel from '../components/Dashboard/QuickAccessPanel';
-import CreateRoomModal from '../components/Dashboard/CreateRoomModal';
-import JoinRoomModal from '../components/Dashboard/JoinRoomModal';
-import { PageLoader } from '../components/UI/Loading';
+import { authService } from '@services/authService';
+import { DashboardLayout } from '@components/Layout/DashboardLayout';
+import QuickAccessPanel from '@components/Dashboard/QuickAccessPanel';
+import CreateRoomModal from '@components/Dashboard/CreateRoomModal';
+import JoinRoomModal from '@components/Dashboard/JoinRoomModal';
+import { PageLoader } from '@components/UI/Loading';
 
 export default function Dashboard() {
     const [user, setUser] = useState(null);
@@ -33,6 +33,7 @@ export default function Dashboard() {
 
         fetchUser();
     }, []);
+
 
     const handleLogout = async () => {
         try {

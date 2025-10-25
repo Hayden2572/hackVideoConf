@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import RoomHeader from '../components/VideoRoom/RoomHeader';
-import VideoGrid from '../components/VideoRoom/VideoGrid/VideoGrid';
-import ControlsPanel from '../components/VideoRoom/ControlsPanel';
-import ChatSidebar from '../components/VideoRoom/ChatSidebar/ChatSidebar';
-import { useRoomSocket } from '../components/VideoRoom/hooks/useRoomSocket';
-import { useMediaStream } from '../components/VideoRoom/hooks/useMediaStream';
-import { roomService } from '../services/roomService';
+import RoomHeader from '@components/VideoRoom/RoomHeader';
+import VideoGrid from '@components/VideoRoom/VideoGrid/VideoGrid';
+import ControlsPanel from '@components/VideoRoom/ControlsPanel';
+import ChatSidebar from '@components/VideoRoom/ChatSidebar/ChatSidebar';
+import { useRoomSocket } from '@components/VideoRoom/hooks/useRoomSocket';
+import { useMediaStream } from '@components/VideoRoom/hooks/useMediaStream';
+import { roomService } from '@services/roomService';
 
 export default function VideoRoomPage() {
     const { roomId } = useParams();

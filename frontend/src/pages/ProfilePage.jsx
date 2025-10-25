@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService';
+import { authService } from '@services/authService';
 
 export default function ProfilePage() {
     const [user, setUser] = useState(null);
@@ -113,7 +113,10 @@ export default function ProfilePage() {
                                 <h1 className="text-2xl font-bold">{user?.name || 'Пользователь'}</h1>
                                 <p className="text-primary-100">{user?.email}</p>
                                 <p className="text-sm text-primary-200 mt-1">
-                                    Участник с {new Date(user?.created_at).toLocaleDateString('ru-RU')}
+                                    {user?.created_at
+                                        ? `Участник с ${new Date(user.created_at).toLocaleDateString('ru-RU')}`
+                                        : 'Дата регистрации не указана'
+                                    }
                                 </p>
                             </div>
                         </div>

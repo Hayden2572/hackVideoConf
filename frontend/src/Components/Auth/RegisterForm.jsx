@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { authService } from '../../services/authService';
-import Input from '../UI/Input';
-import Button from '../UI/Button';
-import Alert from '../UI/Alert';
+import { authService } from '@services/authService';
+import Input from '@components/UI/Input';
+import Button from '@components/UI/Button';
+import Alert from '@components/UI/Alert';
 
 export default function RegisterForm({ onSuccess }) {
     const [formData, setFormData] = useState({

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { roomService } from '../../services/roomService';
-import {useClickOutside} from "../../hooks/useClickOutside.js";
+import { roomService } from '@services/roomService';
+import { useClickOutside } from '@hooks/useClickOutside';
 export default function JoinRoomModal({ onClose }) {
     const [roomCode, setRoomCode] = useState('');
     const navigate = useNavigate();
