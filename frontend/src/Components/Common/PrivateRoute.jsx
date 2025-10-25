@@ -1,11 +1,10 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-//import { tokenService } from '../../utils/tokenService';
+import { tokenService } from '../../utils/tokenService';
 
 export default function PrivateRoute({ children }){
     const location = useLocation();
-    //const isAuthenticated = tokenService.hasToken() && !tokenService.isTokenExpired();
-    const isAuthenticated = true; {/*УДАЛИТЬ!!!!!!!!!!!! и расскоментить*/}
+    const isAuthenticated = tokenService.hasToken() && !tokenService.isTokenExpired();
 
 
     if (!isAuthenticated) {

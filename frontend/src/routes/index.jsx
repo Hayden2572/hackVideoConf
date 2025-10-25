@@ -9,8 +9,7 @@ import ProfilePage from '../pages/ProfilePage';
 import { tokenService } from '../utils/tokenService';
 
 export default function AppRoutes(){
-    //const isAuthenticated = tokenService.hasToken() && !tokenService.isTokenExpired();
-    const isAuthenticated = true;{/*Удалить и расскоментить*/}
+    const isAuthenticated = tokenService.hasToken() && !tokenService.isTokenExpired();
     return (
         <Routes>
             <Route

@@ -1,16 +1,6 @@
 import axios from 'axios';
 import { tokenService } from '../utils/tokenService';
 
-// 🔥 MOCK ДАННЫЕ ДЛЯ РАЗРАБОТКИ
-const mockUser = {
-    id: 1,
-    email: 'user@example.com',
-    name: 'Тестовый Пользователь',
-    avatar: '👨‍💻',
-    created_at: new Date().toISOString(),
-    last_login: new Date().toISOString()
-};
-
 const API_URL = 'http://localhost:8000/api';
 
 const api = axios.create({
@@ -20,7 +10,6 @@ const api = axios.create({
     },
 });
 
-// 🔥 MOCK ИНТЕРЦЕПТОР - ВСЕГДА УСПЕШНЫЙ ОТВЕТ
 api.interceptors.request.use(
     (config) => {
         const token = tokenService.getToken();
@@ -34,64 +23,53 @@ api.interceptors.request.use(
     }
 );
 
-// 🔥 MOCK ИНТЕРЦЕПТОР ОТВЕТОВ - ВСЕГДА УСПЕХ
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        // В разработке всегда успешный ответ
-        console.log('Mock: Intercepting error, returning success');
-        return Promise.resolve({
-            data: mockUser,
-            status: 200,
-            statusText: 'OK'
-        });
+        if (error.response?.status === 401) {
+            tokenService.removeTokens();
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
     }
 );
 
 export const authService = {
     async register(userData) {
-        console.log('Mock: Registering user', userData);
-        // Имитация задержки
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Создаем mock токен
-        tokenService.setToken('mock_jwt_token_' + Date.now());
-
-        return {
-            access_token: 'mock_jwt_token_' + Date.now(),
-            user: mockUser
-        };
+        const response = await api.post('/register', userData);
+        return response.data;
     },
 
+    // Логин
     async login(credentials) {
-        console.log('Mock: Logging in', credentials);
-        // Имитация задержки
-        await new Promise(resolve => setTimeout(resolve, 800));
+        const response = await api.post('/login', credentials);
 
-        // Создаем mock токен
-        const mockToken = 'mock_jwt_token_' + Date.now();
-        tokenService.setToken(mockToken);
+        if (response.data.access_token) {
+            tokenService.setToken(response.data.access_token);
+            if (response.data.refresh_token) {
+                tokenService.setRefreshToken(response.data.refresh_token);
+            }
+        }
 
-        return {
-            access_token: mockToken,
-            user: mockUser
-        };
+        return response.data;
     },
 
     async getProfile() {
-        console.log('Mock: Getting profile');
-        // Имитация задержки
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // 🔥 ВСЕГДА ВОЗВРАЩАЕМ MOCK ПОЛЬЗОВАТЕЛЯ
-        return mockUser;
+        const response = await api.get('/users/me');
+        return response.data;
     },
 
     async refreshToken() {
-        console.log('Mock: Refreshing token');
-        const newToken = 'mock_refreshed_token_' + Date.now();
-        tokenService.setToken(newToken);
-        return { access_token: newToken };
+        const refreshToken = tokenService.getRefreshToken();
+        const response = await api.post('/refresh', {
+            refresh_token: refreshToken
+        });
+
+        if (response.data.access_token) {
+            tokenService.setToken(response.data.access_token);
+        }
+
+        return response.data;
     },
 
     logout() {

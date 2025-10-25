@@ -7,8 +7,7 @@ export const tokenService = {
     },
 
     getToken() {
-        // 🔥 ВСЕГДА ВОЗВРАЩАЕМ ВАЛИДНЫЙ MOCK ТОКЕН
-        return localStorage.getItem(TOKEN_KEY) || 'mock_jwt_token_development';
+        return localStorage.getItem(TOKEN_KEY);
     },
 
     setRefreshToken(token) {
@@ -25,22 +24,24 @@ export const tokenService = {
     },
 
     hasToken() {
-        // 🔥 ВСЕГДА TRUE ДЛЯ РАЗРАБОТКИ
-        return true;
+        return !!this.getToken();
     },
 
     getTokenPayload() {
-        // 🔥 ВСЕГДА ВОЗВРАЩАЕМ ВАЛИДНЫЙ PAYLOAD
-        return {
-            userId: 'dev-user-1',
-            email: 'dev@example.com',
-            exp: Date.now() + 24 * 60 * 60 * 1000, // через 24 часа
-            iat: Date.now()
-        };
+        const token = this.getToken();
+        if (!token) return null;
+
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload;
+        } catch {
+            return null;
+        }
     },
 
     isTokenExpired() {
-        // 🔥 ВСЕГДА FALSE ДЛЯ РАЗРАБОТКИ
-        return false;
+        const payload = this.getTokenPayload();
+        if (!payload || !payload.exp) return true;
+        return payload.exp * 1000 < Date.now();
     }
 };

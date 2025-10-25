@@ -167,7 +167,7 @@ export function useRoomSocket(roomId, localStream) {
         const userId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
         try {
-            const ws = new WebSocket(`ws://localhost:8000/ws/${roomId}/${userId}`);
+            const ws = new WebSocket(`ws://localhost:3001/ws/${roomId}/${userId}`);
 
             ws.onopen = () => {
                 console.log('WebSocket connected successfully');
@@ -243,7 +243,7 @@ export function useRoomSocket(roomId, localStream) {
                                 delete peerConnections.current[data.from];
                             }
 
-                            // Удаляем поток
+
                             setRemoteStreams(prev => {
                                 const newStreams = { ...prev };
                                 delete newStreams[data.from];
@@ -253,7 +253,7 @@ export function useRoomSocket(roomId, localStream) {
 
                         case 'media_toggle':
                             console.log('Media toggle from:', data.from, data.data);
-                            // Можно добавить визуальные индикаторы для других пользователей
+
                             break;
 
                         default:
@@ -277,7 +277,6 @@ export function useRoomSocket(roomId, localStream) {
     useEffect(() => {
         initializeWebSocket();
 
-        // Очистка при размонтировании
         return () => {
             if (reconnectTimeoutRef.current) {
                 clearTimeout(reconnectTimeoutRef.current);
@@ -293,11 +292,11 @@ export function useRoomSocket(roomId, localStream) {
         };
     }, [initializeWebSocket]);
 
-    // Эффект для обновления локальных треков при изменении localStream
+
     useEffect(() => {
         if (localStream) {
             Object.values(peerConnections.current).forEach(pc => {
-                // Удаляем старые треки
+
                 const senders = pc.getSenders();
                 senders.forEach(sender => {
                     if (sender.track && localStream.getTracks().includes(sender.track)) {
@@ -305,7 +304,6 @@ export function useRoomSocket(roomId, localStream) {
                     }
                 });
 
-                // Добавляем новые треки
                 localStream.getTracks().forEach(track => {
                     pc.addTrack(track, localStream);
                 });
