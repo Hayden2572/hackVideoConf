@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router-dom';
 
 export const DashboardLayout = ({
                                     children,
@@ -54,16 +55,19 @@ export const DashboardLayout = ({
                             </div>
 
                             <div className="flex items-center space-x-4">
-                                <div className="flex items-center space-x-2 bg-orange-50 rounded-lg px-3 py-2 border border-orange-100">
-                                    <div className="w-6 h-6 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
+                                <Link
+                                    to="/profile"
+                                    className="flex items-center space-x-2 bg-orange-50 rounded-lg px-3 py-2 border border-orange-100 hover:bg-orange-100 hover:border-orange-200 transition-all duration-200 group cursor-pointer"
+                                >
+                                    <div className="w-6 h-6 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center group-hover:from-orange-600 group-hover:to-amber-600 transition-all duration-200">
                                         <span className="text-white text-xs font-medium">
                                             {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                                         </span>
                                     </div>
-                                    <span className="text-sm text-orange-800 font-medium">
+                                    <span className="text-sm text-orange-800 font-medium group-hover:text-orange-900">
                                         {user?.email || 'user@example.com'}
                                     </span>
-                                </div>
+                                </Link>
                                 <button
                                     onClick={onLogout}
                                     className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"

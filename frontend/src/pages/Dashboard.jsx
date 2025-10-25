@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { DashboardLayout } from '../components/Layout/DashboardLayout'; // Импортируйте layout
-import RecentRooms from '../components/Dashboard/RecentRooms';
 import QuickAccessPanel from '../components/Dashboard/QuickAccessPanel';
 import CreateRoomModal from '../components/Dashboard/CreateRoomModal';
 import JoinRoomModal from '../components/Dashboard/JoinRoomModal';
@@ -79,9 +78,6 @@ export default function Dashboard() {
 
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
-                    <RecentRooms />
-                </div>
 
                 <div className="space-y-6">
                     <QuickAccessPanel />
