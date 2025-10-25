@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import {Link, useNavigate} from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { roomService } from '../services/roomService';
 
-export default function Dashboard(){
+export default function Dashboard() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showCreateRoom, setShowCreateRoom] = useState(false);
     const [showJoinRoom, setShowJoinRoom] = useState(false);
     const [roomName, setRoomName] = useState('');
     const [roomCode, setRoomCode] = useState('');
-    const [recentRooms, setRecentRooms] = useState([]);
     const [creatingRoom, setCreatingRoom] = useState(false);
     const navigate = useNavigate();
 
@@ -18,22 +18,13 @@ export default function Dashboard(){
             try {
                 const userData = await authService.getProfile();
                 setUser(userData);
-                await loadRecentRooms();
             } catch (error) {
                 console.error('Error loading profile:', error);
-                // Если REST API недоступен, используем данные из localStorage
-                const savedUser = localStorage.getItem('user');
-                if (savedUser) {
-                    setUser(JSON.parse(savedUser));
-                } else {
-                    // Fallback данные
-                    setUser({
-                        id: Date.now(),
-                        email: 'user@example.com',
-                        name: 'Пользователь',
-                        avatar: null
-                    });
-                }
+                setUser({
+                    id: 1,
+                    email: 'demo@example.com',
+                    name: 'Демо пользователь'
+                });
             } finally {
                 setLoading(false);
             }
@@ -42,62 +33,11 @@ export default function Dashboard(){
         fetchUser();
     }, []);
 
-    const loadRecentRooms = async () => {
-        try {
-            // Пытаемся получить комнаты из REST API
-            // const rooms = await authService.getRecentRooms();
-            // setRecentRooms(rooms);
-
-            // Fallback: получаем из localStorage
-            const savedRooms = localStorage.getItem('recentRooms');
-            if (savedRooms) {
-                setRecentRooms(JSON.parse(savedRooms));
-            } else {
-                // Демо комнаты по умолчанию
-                setRecentRooms([
-                    {
-                        id: 'demo-room-1',
-                        name: 'Демо комната 1',
-                        lastJoined: new Date().toISOString(),
-                        participants: 0
-                    },
-                    {
-                        id: 'demo-room-2',
-                        name: 'Демо комната 2',
-                        lastJoined: new Date().toISOString(),
-                        participants: 0
-                    }
-                ]);
-            }
-        } catch (error) {
-            console.error('Error loading recent rooms:', error);
-        }
-    };
-
-    const saveRoomToHistory = (roomId, roomName) => {
-        const newRoom = {
-            id: roomId,
-            name: roomName,
-            lastJoined: new Date().toISOString(),
-            participants: 0
-        };
-
-        setRecentRooms(prev => {
-            const filtered = prev.filter(room => room.id !== roomId);
-            const updated = [newRoom, ...filtered].slice(0, 5); // Храним последние 5 комнат
-            localStorage.setItem('recentRooms', JSON.stringify(updated));
-            return updated;
-        });
-    };
-
     const handleLogout = async () => {
         try {
             await authService.logout();
         } catch (error) {
             console.error('Logout error:', error);
-            // Даже если API недоступен, очищаем локальные данные
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
         } finally {
             navigate('/login');
         }
@@ -108,17 +48,19 @@ export default function Dashboard(){
 
         setCreatingRoom(true);
         try {
-            // Генерируем ID комнаты (WebRTC бэкенд работает с любыми ID)
-            const roomId = generateRoomId(roomName);
+            const roomData = {
+                roomName: roomName.trim(),
+                description: `Комната для встречи: ${roomName}`,
+                maxParticipants: 10
+            };
 
-            // Сохраняем в историю
-            saveRoomToHistory(roomId, roomName);
+            const createdRoom = await roomService.createRoom(roomData);
+            navigate(`/room/${createdRoom.roomId}`);
 
-            // Переходим в комнату
-            navigate(`/room/${roomId}`);
         } catch (error) {
             console.error('Error creating room:', error);
-            alert('Ошибка при создании комнаты');
+            const localRoomId = roomName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Date.now();
+            navigate(`/room/${localRoomId}`);
         } finally {
             setCreatingRoom(false);
             setShowCreateRoom(false);
@@ -126,44 +68,29 @@ export default function Dashboard(){
         }
     };
 
-    const generateRoomId = (name) => {
-        // Генерируем человеко-читаемый ID
-        const base = name.toLowerCase()
-            .replace(/[^a-z0-9а-яё]/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^-|-$/g, '');
-
-        const random = Math.random().toString(36).substring(2, 8);
-        return `${base}-${random}`;
-    };
-
     const joinRoom = async () => {
         if (!roomCode.trim()) return;
 
         try {
-            const roomId = roomCode.trim();
+            const isValid = await roomService.validateRoom(roomCode.trim());
 
-            // Проверяем формат ID комнаты (минимальная валидация)
-            if (roomId.length < 3) {
-                alert('Некорректный код комнаты');
+            if (!isValid) {
+                alert('Комната не найдена. Проверьте код комнаты.');
                 return;
             }
 
-            // Сохраняем в историю с именем "Комната [код]"
-            saveRoomToHistory(roomId, `Комната ${roomId}`);
+            navigate(`/room/${roomCode.trim()}`);
 
-            navigate(`/room/${roomId}`);
         } catch (error) {
             console.error('Error joining room:', error);
-            alert('Ошибка при присоединении к комнате');
+            navigate(`/room/${roomCode.trim()}`);
         } finally {
             setShowJoinRoom(false);
             setRoomCode('');
         }
     };
 
-    const quickJoin = (roomId, roomName) => {
-        saveRoomToHistory(roomId, roomName);
+    const quickJoin = (roomId) => {
         navigate(`/room/${roomId}`);
     };
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { tokenService } from '../utils/tokenService';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://localhost:5000/api';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -27,8 +27,17 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         if (error.response?.status === 401) {
-            tokenService.removeTokens();
-            window.location.href = '/login';
+            try {
+                const newToken = await authService.refreshToken();
+                if (newToken) {
+                    const originalRequest = error.config;
+                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                    return api(originalRequest);
+                }
+            } catch (refreshError) {
+                tokenService.removeTokens();
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }
@@ -36,13 +45,12 @@ api.interceptors.response.use(
 
 export const authService = {
     async register(userData) {
-        const response = await api.post('/register', userData);
+        const response = await api.post('/auth/register', userData);
         return response.data;
     },
 
-    // Логин
     async login(credentials) {
-        const response = await api.post('/login', credentials);
+        const response = await api.post('/auth/login', credentials);
 
         if (response.data.access_token) {
             tokenService.setToken(response.data.access_token);
@@ -55,25 +63,43 @@ export const authService = {
     },
 
     async getProfile() {
-        const response = await api.get('/users/me');
-        return response.data;
+        try {
+            const response = await api.get('/auth/profile');
+            return response.data;
+        } catch (error) {
+            return {
+                id: 1,
+                email: 'demo@example.com',
+                name: 'Демо пользователь',
+                avatar: null
+            };
+        }
     },
 
     async refreshToken() {
-        const refreshToken = tokenService.getRefreshToken();
-        const response = await api.post('/refresh', {
-            refresh_token: refreshToken
-        });
+        try {
+            const refreshToken = tokenService.getRefreshToken();
+            const response = await api.post('/auth/refresh', {
+                refresh_token: refreshToken
+            });
 
-        if (response.data.access_token) {
-            tokenService.setToken(response.data.access_token);
+            if (response.data.access_token) {
+                tokenService.setToken(response.data.access_token);
+                return response.data.access_token;
+            }
+        } catch (error) {
+            throw error;
         }
-
-        return response.data;
     },
 
     logout() {
-        tokenService.removeTokens();
+        api.post('/auth/logout').catch(() => {}).finally(() => {
+            tokenService.removeTokens();
+        });
+    },
+
+    getToken() {
+        return tokenService.getToken();
     }
 };
 
