@@ -1,16 +1,16 @@
 import React from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LoginForm } from '../components/Auth/LoginForm';
-import { AuthLayout } from '../components/Layout/AuthLayout';
+import LoginForm from '../components/Auth/LoginForm';
+import AuthLayout from '../components/Layout/AuthLayout';
 
-const LoginPage = () => {
+export default function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const handleLoginSuccess = () => {
+    function handleLoginSuccess() {
         const from = location.state?.from?.pathname || '/dashboard';
         navigate(from, { replace: true });
-    };
+    }
 
     const footer = (
         <p className="text-gray-600">
@@ -33,6 +33,4 @@ const LoginPage = () => {
             <LoginForm onSuccess={handleLoginSuccess} />
         </AuthLayout>
     );
-};
-
-export default LoginPage;
+}

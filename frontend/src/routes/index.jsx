@@ -4,12 +4,13 @@ import PrivateRoute from '../components/Common/PrivateRoute';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import Dashboard from '../pages/Dashboard';
+import VideoRoomPage from '../pages/VideoRoomPage';
+import ProfilePage from '../pages/ProfilePage';
 import { tokenService } from '../utils/tokenService';
 
-const AppRoutes = () => {
+export default function AppRoutes(){
     //const isAuthenticated = tokenService.hasToken() && !tokenService.isTokenExpired();
     const isAuthenticated = true;{/*Удалить и расскоментить*/}
-
     return (
         <Routes>
             <Route
@@ -35,16 +36,30 @@ const AppRoutes = () => {
             />
 
             <Route
+                path="/profile"
+                element={
+                    <PrivateRoute>
+                        <ProfilePage />
+                    </PrivateRoute>
+                }
+            />
+
+            <Route
                 path="/"
                 element={
                     <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
                 }
             />
-
+            <Route
+                path="/room/:roomId"
+                element={
+                    <PrivateRoute>
+                        <VideoRoomPage />
+                    </PrivateRoute>
+                }
+            />
             {/* 404 */}
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );
 };
-
-export default AppRoutes;

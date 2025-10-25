@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { authService } from '../../services/authService';
-import { Input } from '../UI/Input';
-import { Button } from '../UI/Button';
-import { Alert } from '../UI/Alert';
+import Input from '../UI/Input';
+import Button from '../UI/Button';
+import Alert from '../UI/Alert';
 
-export const LoginForm = ({ onSuccess }) => {
+export default function LoginForm({ onSuccess }) {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -12,14 +12,14 @@ export const LoginForm = ({ onSuccess }) => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleChange = (e) => {
+    function handleChange(e) {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
-    };
+    }
 
-    const handleSubmit = async (e) => {
+    async function handleSubmit(e) {
         e.preventDefault();
         setLoading(true);
         setError('');
@@ -32,7 +32,7 @@ export const LoginForm = ({ onSuccess }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -76,4 +76,4 @@ export const LoginForm = ({ onSuccess }) => {
             </Button>
         </form>
     );
-};
+}

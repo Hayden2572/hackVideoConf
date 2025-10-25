@@ -12,7 +12,7 @@ const buttonSizes = {
     lg: 'px-6 py-3 text-lg',
 };
 
-export const Button = ({
+export function Button({
                            children,
                            variant = 'primary',
                            size = 'md',
@@ -20,7 +20,7 @@ export const Button = ({
                            disabled = false,
                            className = '',
                            ...props
-                       }) => {
+                       }) {
     const variantStyles = buttonVariants[variant];
     const sizeStyles = buttonSizes[size];
 
@@ -42,4 +42,6 @@ export const Button = ({
             )}
         </button>
     );
-};
+}
+
+export default Button;

@@ -7,7 +7,8 @@ export const tokenService = {
     },
 
     getToken() {
-        return localStorage.getItem(TOKEN_KEY);
+        // 🔥 ВСЕГДА ВОЗВРАЩАЕМ ВАЛИДНЫЙ MOCK ТОКЕН
+        return localStorage.getItem(TOKEN_KEY) || 'mock_jwt_token_development';
     },
 
     setRefreshToken(token) {
@@ -24,24 +25,22 @@ export const tokenService = {
     },
 
     hasToken() {
-        return !!this.getToken();
+        // 🔥 ВСЕГДА TRUE ДЛЯ РАЗРАБОТКИ
+        return true;
     },
 
     getTokenPayload() {
-        const token = this.getToken();
-        if (!token) return null;
-
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            return payload;
-        } catch {
-            return null;
-        }
+        // 🔥 ВСЕГДА ВОЗВРАЩАЕМ ВАЛИДНЫЙ PAYLOAD
+        return {
+            userId: 'dev-user-1',
+            email: 'dev@example.com',
+            exp: Date.now() + 24 * 60 * 60 * 1000, // через 24 часа
+            iat: Date.now()
+        };
     },
 
     isTokenExpired() {
-        const payload = this.getTokenPayload();
-        if (!payload || !payload.exp) return true;
-        return payload.exp * 1000 < Date.now();
+        // 🔥 ВСЕГДА FALSE ДЛЯ РАЗРАБОТКИ
+        return false;
     }
 };

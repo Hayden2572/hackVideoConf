@@ -4,7 +4,7 @@ import AppRoutes from './routes';
 import './index.css';
 
 
-function App() {
+export default function App() {
     return (
         <Router>
             <div className="App">
@@ -13,5 +13,3 @@ function App() {
         </Router>
     );
 }
-
-export default App;

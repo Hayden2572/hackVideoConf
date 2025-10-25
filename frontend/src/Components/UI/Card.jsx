@@ -1,12 +1,12 @@
 import React from 'react';
 
-export const Card = ({
+export function Card({
                          children,
                          className = '',
                          padding = 'p-6',
                          hover = false,
                          ...props
-                     }) => {
+                     }) {
     return (
         <div
             className={`card ${padding} ${
@@ -17,20 +17,22 @@ export const Card = ({
             {children}
         </div>
     );
-};
+}
 
-export const CardHeader = ({ children, className = '' }) => {
+export function CardHeader({ children, className = '' }) {
     return (
         <div className={`mb-4 ${className}`}>
             {children}
         </div>
     );
-};
+}
 
-export const CardContent = ({ children, className = '' }) => {
+export function CardContent({ children, className = '' }) {
     return (
         <div className={className}>
             {children}
         </div>
     );
-};
+}
+
+export default Card;

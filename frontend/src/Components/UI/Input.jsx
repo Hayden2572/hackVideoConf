@@ -1,12 +1,12 @@
 import React from 'react';
 
-export const Input = ({
+export function Input({
                           label,
                           type = 'text',
                           error,
                           className = '',
                           ...props
-                      }) => {
+                      }) {
     return (
         <div className="space-y-2">
             {label && (
@@ -24,4 +24,6 @@ export const Input = ({
             )}
         </div>
     );
-};
+}
+
+export default Input;

@@ -1,9 +1,9 @@
 import React from 'react';
 
-export const LoadingSpinner = ({
+export function LoadingSpinner({
                                    size = 'md',
                                    className = ''
-                               }) => {
+                               }) {
     const sizes = {
         sm: 'w-4 h-4',
         md: 'w-8 h-8',
@@ -13,9 +13,9 @@ export const LoadingSpinner = ({
     return (
         <div className={`${sizes[size]} border-2 border-primary-500 border-t-transparent rounded-full animate-spin ${className}`} />
     );
-};
+}
 
-export const PageLoader = ({ text = 'Загрузка...' }) => {
+export function PageLoader({ text = 'Загрузка...' }) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-500 to-secondary-500">
             <div className="text-center">
@@ -24,4 +24,6 @@ export const PageLoader = ({ text = 'Загрузка...' }) => {
             </div>
         </div>
     );
-};
+}
+
+export default LoadingSpinner;

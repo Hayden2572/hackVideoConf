@@ -7,11 +7,11 @@ const alertVariants = {
     info: 'bg-blue-50 border-blue-200 text-blue-700',
 };
 
-export const Alert = ({
+export function Alert({
                           children,
                           variant = 'info',
                           className = ''
-                      }) => {
+                      }) {
     return (
         <div className={`p-4 rounded-lg border ${alertVariants[variant]} ${className}`}>
             <div className="flex items-center">
@@ -19,4 +19,6 @@ export const Alert = ({
             </div>
         </div>
     );
-};
+}
+
+export default Alert;

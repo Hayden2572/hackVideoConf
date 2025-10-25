@@ -1,19 +1,19 @@
 import React from 'react';
 
-export const AuthLayout = ({
-                               children,
-                               title,
-                               subtitle,
-                               footer
-                           }) => {
+export default function AuthLayout({
+                                       children,
+                                       title,
+                                       subtitle,
+                                       footer
+                                   }) {
     return (
         <div className="min-h-screen bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center p-4 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-500 to-secondary-500"></div>
-            <div className="absolute -bottom-0 -right-32 w-80 h-80 bg-orange-500 rounded-full opacity-60 z-0"></div>
-            <div className="absolute -top-0 -left-32 w-80 h-80 bg-orange-500 rounded-full opacity-60 z-0"></div>
-            {/* Контент поверх всего */}
+            {/* Оранжевые круги на заднем фоне */}
+            <div className="absolute -bottom-48 -right-48 w-96 h-96 bg-orange-500 rounded-full opacity-20 blur-xl z-0"></div>
+            <div className="absolute -top-48 -left-48 w-96 h-96 bg-orange-400 rounded-full opacity-15 blur-xl z-0"></div>
+
             <div className="w-full max-w-md relative z-10">
-                <div className="card p-8 animate-slide-up">
+                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 animate-slide-up">
                     {/* Header */}
                     <div className="text-center mb-8">
                         <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
@@ -33,4 +33,4 @@ export const AuthLayout = ({
             </div>
         </div>
     );
-};
+}

@@ -1,16 +1,16 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { RegisterForm } from '../components/Auth/RegisterForm';
-import { AuthLayout } from '../components/Layout/AuthLayout';
+import RegisterForm from '../components/Auth/RegisterForm';
+import AuthLayout from '../components/Layout/AuthLayout';
 
-const RegisterPage = () => {
+export default function RegisterPage() {
     const navigate = useNavigate();
 
-    const handleRegisterSuccess = () => {
+    function handleRegisterSuccess() {
         navigate('/login', {
             state: { message: 'Регистрация успешна! Теперь вы можете войти.' }
         });
-    };
+    }
 
     const footer = (
         <p className="text-gray-600">
@@ -33,6 +33,4 @@ const RegisterPage = () => {
             <RegisterForm onSuccess={handleRegisterSuccess} />
         </AuthLayout>
     );
-};
-
-export default RegisterPage;
+}
