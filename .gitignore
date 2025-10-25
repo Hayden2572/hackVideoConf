@@ -4,3 +4,4 @@ venv
 #*.env.production
 #.env.backup
 #.env.example
+".env" 
