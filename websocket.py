@@ -5,6 +5,12 @@ import redis.asyncio as redis
 import json
 import asyncio
 
+
+BAN_WORDS = [
+    "spam",
+    "shit",
+    "gay"
+]
 ROLE_LIST = [
     "owner",
     "moderator",
@@ -14,10 +20,10 @@ ROLE_LIST = [
 MODERATOR_EVENTS = [
     "user_muted",
     "user_kicked",
-    "user_camera_off",
+    "user_camera_off", #not released
     "role_changed",
-    "user_invited",
-    "user_banned",
+    "user_invited", #not released
+    "user_banned", #not released
     "message_deleted"
 ]
 EVENTS_LIST = [
@@ -25,7 +31,7 @@ EVENTS_LIST = [
     "user_left",
     "hand_raised",
     "hand_lowered",
-    "user_media_updated"
+    "user_media_updated" #not released
 ]
 SYSTEM_EVENTS = [
     "ping",
@@ -96,6 +102,37 @@ class ConnectionManager:
             await self.RemoveConnection(roomID, userID)
 
     async def HandleModaretionEvent(self, roomID: str, eventType: str, fromUser: str, targetUser: str, data: dict):
+        if eventType == "hand_raised" and await self.ValidateEvent(roomID, fromUser, eventType, targetUser):
+            await self.SetUserState(roomID, fromUser, "hand_raised", True)  
+            
+            await self.Publish(roomID ,json.dumps({
+                "type": eventType,
+                "from": fromUser,
+                "to":"moderators",
+                "data":{}
+            }))
+
+        if eventType == "hand_lowered" and await self.ValidateEvent(roomID, fromUser, eventType, targetUser):
+            await self.SetUserState(roomID, fromUser, "hand_raised", False)
+            
+            await self.Publish(roomID ,json.dumps({
+                "type": eventType,
+                "from": fromUser,
+                "to":"moderators",
+                "data":{}
+            }))
+        
+        if eventType == "message_deleted" and await self.ValidateEvent(roomID, fromUser, eventType, targetUser):
+            await self.Publish(roomID, json.dumps({
+                "type": eventType,
+                "from": fromUser,
+                "to": "all",
+                "data":{
+                    "message_id":data.get("message_id"),
+                    "reason":data.get("reason", "")
+                }
+            }))
+        
         if eventType == "user_kicked" and await self.ValidateEvent(roomID, fromUser, eventType, targetUser):
             await self.ForcedDisconnectUser(roomID, targetUser)
 
@@ -131,6 +168,12 @@ class ConnectionManager:
         if roomID in self.connections and userID in self.connections[roomID]:
             del self.connections[roomID][userID]
 
+        if roomID in self.userStates and userID in self.userStates[roomID]:
+            del self.userStates[roomID][userID]
+
+        if roomID in self.userRoles and userID in self.userRoles[roomID]:
+            del self.userRoles[roomID][userID]
+
     async def Publish(self, roomID: str, message: str):
         if redisClient:
             await redisClient.publish(
@@ -145,6 +188,18 @@ class ConnectionManager:
             return pubsub
         
         return None
+    
+    async def ValidateMsg(self, data: dict) -> bool:
+        text = data.get("data", {}).get("text", "")
+
+        if len(text) > 1000:
+            return False
+        
+        for banWord in BAN_WORDS:
+            if banWord in text.lower():
+                return False
+            
+        return True
     
 manager = ConnectionManager()
 
@@ -163,13 +218,40 @@ async def websocketEndPoint(websocket: WebSocket, roomID: str, userID: str):
                 "type":"user_joined",
                 "from":userID,
                 "data":{"users": list(manager.connections.get(roomID, {}).keys())}
-            })
+            })  
         )
+
+        roomState = {
+            "users": [
+                {
+                    "id":userID,
+                    "role": await manager.GetUserRole(roomID, user_id),
+                    "state": manager.userStates.get(roomID, {}).get(user_id, {}),
+                    "hand_raised": manager.userStates.get(roomID, {}).get(user_id, {}).get("hand_raised", False)
+                }
+                for user_id in manager.connections.get(roomID, {})
+            ]
+        }
+
+        await websocket.send_text(json.dumps({
+            "type": "room_state_sync",
+            "from": "system",
+            "to": userID,
+            "data": roomState
+            }))
 
         async def recieveFromClient():
             try: 
                 async for message in websocket.iter_text():
                     data = json.loads(message)
+
+                    if data["type"] == "chat_message":
+                        if not await manager.ValidateMsg(data):
+                            await websocket.send_text(json.dumps({
+                                "type":"error",
+                                "data":{"message":"message rejected"}
+                            }))
+                            continue
 
                     if not await manager.ValidateEvent(roomID, userID, data["type"], data.get("to")):
                         await websocket.send_text(
