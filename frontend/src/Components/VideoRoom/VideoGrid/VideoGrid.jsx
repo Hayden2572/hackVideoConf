@@ -1,20 +1,24 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import LocalVideo from './LocalVideo';
 import RemoteVideo from './RemoteVideo';
 
-export default function VideoGrid({ localStream, remoteStreams, isVideoOn }) {
-    const totalVideos = Object.keys(remoteStreams).length + 1;
+export default React.memo(function VideoGrid({ localStream, remoteStreams, isVideoOn }) {
+    const totalVideos = useMemo(() =>
+            Object.keys(remoteStreams).length + 1,
+        [remoteStreams]);
+
+    const remoteVideoEntries = useMemo(() =>
+            Object.entries(remoteStreams),
+        [remoteStreams]);
 
     return (
         <div className="flex-1 flex flex-wrap gap-6 p-6 justify-center items-center overflow-auto">
-            {/* Локальное видео */}
             <LocalVideo
                 stream={localStream}
                 isVideoOn={isVideoOn}
             />
 
-            {/* Удаленные видео */}
-            {Object.entries(remoteStreams).map(([userId, stream]) => (
+            {remoteVideoEntries.map(([userId, stream]) => (
                 <RemoteVideo
                     key={userId}
                     userId={userId}
@@ -22,7 +26,6 @@ export default function VideoGrid({ localStream, remoteStreams, isVideoOn }) {
                 />
             ))}
 
-            {/* Заглушка если нет участников */}
             {totalVideos === 1 && (
                 <div className="flex flex-col items-center justify-center text-gray-500 bg-white rounded-2xl p-8 shadow-lg">
                     <div className="text-6xl mb-4 text-primary-500">👥</div>
@@ -32,4 +35,4 @@ export default function VideoGrid({ localStream, remoteStreams, isVideoOn }) {
             )}
         </div>
     );
-}
+});

@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
-export default function ChatMessages({ messages }) {
+export default React.memo(function ChatMessages({ messages }) {
+    const formattedMessages = useMemo(() =>
+            messages.map(message => ({
+                ...message,
+                displayTime: new Date(message.timestamp).toLocaleTimeString()
+            })),
+        [messages]);
+
     return (
         <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50">
-            {messages.map((message, index) => (
+            {formattedMessages.map((message, index) => (
                 <div
-                    key={index}
+                    key={`${message.timestamp}-${index}`}
                     className={`p-3 rounded-xl ${
                         message.from.startsWith('user-')
                             ? 'bg-primary-100 border border-primary-200'
@@ -17,7 +24,7 @@ export default function ChatMessages({ messages }) {
                             {message.from}
                         </div>
                         <div className="text-xs text-gray-500">
-                            {new Date(message.timestamp).toLocaleTimeString()}
+                            {message.displayTime}
                         </div>
                     </div>
                     <div className="text-sm text-gray-700">{message.text}</div>
@@ -33,4 +40,4 @@ export default function ChatMessages({ messages }) {
             )}
         </div>
     );
-}
+});

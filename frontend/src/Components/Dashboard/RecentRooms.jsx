@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { roomService } from '../services/roomService';
+import { roomService } from '../../services/roomService';
 
 const recentRooms = [
     { id: 'demo-room-1', name: 'Демо комната 1', lastJoined: new Date().toISOString() },
