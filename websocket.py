@@ -102,7 +102,7 @@ class ConnectionManager:
             await self.RemoveConnection(roomID, userID)
 
     async def HandleModaretionEvent(self, roomID: str, eventType: str, fromUser: str, targetUser: str, data: dict):
-        if eventType == "hand_raised" and await self.ValidateEvent(roomID, fromUser, eventType, targetUser):
+        if eventType == "hand_raised" and await self.ValidateEvent(roomID, fromUser, eventType):
             await self.SetUserState(roomID, fromUser, "hand_raised", True)  
             
             await self.Publish(roomID ,json.dumps({
@@ -112,7 +112,7 @@ class ConnectionManager:
                 "data":{}
             }))
 
-        if eventType == "hand_lowered" and await self.ValidateEvent(roomID, fromUser, eventType, targetUser):
+        if eventType == "hand_lowered" and await self.ValidateEvent(roomID, fromUser, eventType):
             await self.SetUserState(roomID, fromUser, "hand_raised", False)
             
             await self.Publish(roomID ,json.dumps({
@@ -224,7 +224,7 @@ async def websocketEndPoint(websocket: WebSocket, roomID: str, userID: str):
         roomState = {
             "users": [
                 {
-                    "id":userID,
+                    "id":user_id,
                     "role": await manager.GetUserRole(roomID, user_id),
                     "state": manager.userStates.get(roomID, {}).get(user_id, {}),
                     "hand_raised": manager.userStates.get(roomID, {}).get(user_id, {}).get("hand_raised", False)
